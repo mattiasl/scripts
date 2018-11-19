@@ -20,8 +20,8 @@ setup(
     license="MIT",
     keywords="python artifactory bitbucket git github maven script stash",
     url="https://github.com/bjuvensjo/scripts",
-    packages=['vang.artifactory', 'vang.bitbucket', 'vang.core', 'vang.git', 'vang.github', 'vang.maven', 'vang.misc',
-              'vang.pio', 'vang.wildcat'],
+    packages=['vang.artifactory', 'vang.bitbucket', 'vang.core', 'vang.git', 'vang.jenkins', 'vang.maven', 'vang.misc',
+              'vang.pio', 'vang.wildcat', 'vang.tfs'],
     long_description=read('README.md'),
     classifiers=[
         "Development Status :: 4 - Beta",
