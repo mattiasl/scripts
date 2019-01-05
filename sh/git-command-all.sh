@@ -7,6 +7,7 @@ else
 fi
 
 find "$root" -name ".git" -type d | while read git_dir; do
+    echo "==== $git_dir ===="
     cd "$git_dir/.."
     eval "$1"
 done

@@ -3,18 +3,18 @@
 <plist version="1.0">
     <dict>
         <key>Label</key>
-        <string>com.github.bjuvensjo.scripts.vang.misc.ext_local</string>
+        <string>com.github.bjuvensjo.scripts.ext_local</string>
         <key>LowPriorityIO</key>
         <true/>
         <key>EnvironmentVariables</key>
         <dict>
             <key>PATH</key>
-            <string>/bin:/usr/bin:/usr/local/bin:/usr/sbin/:/Library/Frameworks/Python.framework/Versions/3.6/bin</string>
+            <string>/bin:/usr/bin:/usr/local/bin:/usr/sbin/:/Users/mattias/miniconda3/bin</string>
             <key>PYTHONPATH</key>
-            <string>/Users/ei4577/git/scripts</string>
+            <string>/Users/mattias/dev/mattiasl/scripts</string>
         </dict>
         <key>Program</key>
-        <string>/Users/ei4577/bin/ext-local</string>
+        <string>/Users/mattias/bin/ext_local</string>
         <key>UserName</key>
         <string>root</string>
         <key>StandardOutPath</key>
