@@ -42,7 +42,7 @@ def get_repos_commands(repos, branch=None, flat=False):
 
     commands = []
     clone_urls_map = {
-        '{}/{}'.format(project, repo): (clone_dir, project, repo, command)
+        f'{project}/{repo}': (clone_dir, project, repo, command)
         for clone_dir, project, repo, command in get_clone_urls(
             projects,
             True,
@@ -54,7 +54,7 @@ def get_repos_commands(repos, branch=None, flat=False):
         if repo_spec in clone_urls_map:
             commands.append(clone_urls_map[repo_spec])
         else:
-            print('Warning! Non existing repo: {}'.format(repo_spec))
+            print(f'Warning! Non existing repo: {repo_spec}')
 
     return commands
 
@@ -95,7 +95,7 @@ def main(root_dir,
         try:
             print(str(n).zfill(2), process.stdout.decode(), end='')
             n += 1
-        except OSError:
+        except OSError:  # pragma: no cover
             print(traceback.format_exc())
 
 
@@ -119,5 +119,5 @@ def parse_args(args):
     return parser.parse_args(args)
 
 
-if __name__ == '__main__':
+if __name__ == '__main__':  # pragma: no cover
     main(**parse_args(argv[1:]).__dict__)

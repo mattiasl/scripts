@@ -13,10 +13,11 @@ from zipfile import ZipFile
 def create_zip(the_entries, output_file):
     makedirs(dirname(output_file), exist_ok=True)
 
-    the_zip_file = output_file.replace('#timestamp#', datetime.now().strftime('%Y%m%dT%H%M%S'))
+    the_zip_file = output_file.replace('#timestamp#',
+                                       datetime.now().strftime('%Y%m%dT%H%M%S'))
     with ZipFile(the_zip_file, 'w') as z:
         for base_path, rel_path, flatten in the_entries:
-            file_name = '{}/{}'.format(base_path, rel_path)
+            file_name = f'{base_path}/{rel_path}'
             arc_name = rel_path.split('/')[-1] if flatten else rel_path
             z.write(file_name, arc_name)
     return the_zip_file
@@ -33,17 +34,19 @@ def get_patterns(key, default, **kwargs):
 
 
 def is_included(dir_path, file_name, path):
-    rel_path = relpath('{}/{}'.format(dir_path, file_name), path)
-    return has_match('includes', get_patterns('includes', ['.*'])) and \
-           not has_match(rel_path, get_patterns('excludes', []))
+    rel_path = relpath(f'{dir_path}/{file_name}', path)
+    return has_match('includes',
+                     get_patterns('includes', ['.*'])) and not has_match(
+        rel_path, get_patterns('excludes', []))
 
 
 def get_entries(dirs):
-    return [(d['path'], relpath('{}/{}'.format(dir_path, file_name), d['path']), d['flatten'])
-            for d in dirs
-            for dir_path, dir_names, file_names in walk(d['path'])
-            for file_name in file_names
-            if is_included(dir_path, file_name, d['path'])]
+    return [
+        (d['path'], relpath(f'{dir_path}/{file_name}', d['path']), d['flatten'])
+        for d in dirs
+        for dir_path, dir_names, file_names in walk(d['path'])
+        for file_name in file_names
+        if is_included(dir_path, file_name, d['path'])]
 
 
 def load_config(config):
@@ -59,7 +62,8 @@ def pzip(config):
 
 
 def parse_args(args):
-    parser = argparse.ArgumentParser(description='Zip as configured in specified config file.')
+    parser = argparse.ArgumentParser(
+        description='Zip as configured in specified config file.')
     parser.add_argument('config', help=dumps({
         "dirs": [
             {
@@ -82,8 +86,8 @@ def parse_args(args):
 
 def main(config):
     zip_file, entries = pzip(config)
-    print('Zip file: {}'.format(zip_file))
+    print(f'Zip file: {zip_file}')
 
 
-if __name__ == '__main__':
+if __name__ == '__main__':  # pragma: no cover
     main(**parse_args(argv[1:]).__dict__)

@@ -9,9 +9,13 @@
 docs.txt
 __pycache__
 **/slask*
+**/test_slask*
 README.html
 **/.pytest_cache
 **/.cache
 /build
 /dist
 **/*egg-info
+.coverage
+htmlcov/
+work_dir

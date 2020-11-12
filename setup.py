@@ -13,19 +13,20 @@ def read(fname):
 
 setup(
     name="vang",
-    version="0.6.0",
+    version="1.0.0",
     author="Magnus Bjuvensjö",
     author_email="bjuvensjo@gmail.com",
     description=("Scripts"),
     license="MIT",
     keywords="python artifactory bitbucket git github maven script stash",
     url="https://github.com/bjuvensjo/scripts",
-    packages=['vang.artifactory', 'vang.bitbucket', 'vang.core', 'vang.git', 'vang.jenkins', 'vang.maven', 'vang.misc',
-              'vang.pio', 'vang.wildcat', 'vang.tfs'],
+    packages=['vang.artifactory', 'vang.bitbucket', 'vang.core', 'vang.git', 'vang.github', 'vang.maven', 'vang.misc',
+              'vang.nexus3', 'vang.pio', 'vang.tfs', 'vang.wildcat'],
     long_description=read('README.md'),
+    long_description_content_type="text/markdown",
     classifiers=[
         "Development Status :: 4 - Beta",
         "Topic :: Utilities",
         "License :: OSI Approved :: MIT License",
-    ], install_requires=['pytest']
+    ], install_requires=['more-itertools', 'requests', 'pytest']
 )

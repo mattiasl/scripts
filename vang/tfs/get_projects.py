@@ -10,8 +10,7 @@ def get_projects(organisations, project_specs=False, names=False):
     if not organisations:
         return []
     projects = [(o, p) for o in organisations
-                # for p in call(f'/{o}/_apis/projects?api-version=3.2')['value']]
-                for p in call(f'/{o}/_apis/projects')['value']]
+                for p in call(f'/{o}/_apis/projects?api-version=3.2')['value']]
     if names:
         return [project[1]['name'] for project in projects]
     if project_specs:
@@ -46,5 +45,5 @@ def main(organisations,
         print(a_project)
 
 
-if __name__ == '__main__':
+if __name__ == '__main__':  # pragma: no cover
     main(**parse_args(argv[1:]).__dict__)

@@ -2,6 +2,7 @@
 
 from unittest.mock import call, patch
 
+import pytest
 from pytest import raises
 
 from vang.bitbucket.create_repo import create_repo
@@ -14,7 +15,7 @@ def test_create_repo(mock_call):
     create_repo('project', 'repo')
     assert [
                call('/rest/api/1.0/projects/project/repos',
-                    '{"name":"repo","scmId":"git","forkable":true}', 'POST')
+                    {"name": "repo", "scmId": "git", "forkable": True}, 'POST')
            ] == mock_call.mock_calls
 
 
@@ -47,16 +48,20 @@ def test_main(mock_print, mock_create_repo):
                ] == mock_print.mock_calls
 
 
-def test_parse_args():
-    for args in [
-        None, '', 'foo bar baz'
-    ]:
-        with raises(SystemExit):
-            parse_args(args.split(' ') if args else args)
+@pytest.mark.parametrize("args", [
+    '',
+    'foo bar baz',
+])
+def test_parse_args_raises(args):
+    with raises(SystemExit):
+        parse_args(args.split(' ') if args else args)
 
-    for args, pargs in [
-        ['project repo', {'project': 'project',
-                          'repository': 'repo'}],
 
-    ]:
-        assert pargs == parse_args(args.split(' ')).__dict__
+@pytest.mark.parametrize("args, expected", [
+    ['project repo', {
+        'project': 'project',
+        'repository': 'repo'
+    }],
+])
+def test_parse_args_valid(args, expected):
+    assert expected == parse_args(args.split(' ') if args else '').__dict__

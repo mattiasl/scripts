@@ -30,7 +30,7 @@ mmp_config = {
 
 def get_mmp_args(root_dir):
     return {
-        'output_dir': '{}/{}'.format(root_dir, mmp_config['output_dir']),
+        'output_dir': f'{root_dir}/{mmp_config["output_dir"]}',
         'group_id': getcwd().split('/')[-1],
         'artifact_id': 'ws',
         'version': '1.0.0-SNAPSHOT',
@@ -58,7 +58,7 @@ def main(root_dir, branch):
     do_mmp(root_dir)
 
 
-if __name__ == '__main__':
+if __name__ == '__main__':  # pragma: no cover
     import argparse
 
     parser = argparse.ArgumentParser(description='Clones config and creates Maven multi module project')
