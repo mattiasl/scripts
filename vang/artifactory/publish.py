@@ -10,7 +10,7 @@ from vang.artifactory.utils import get_artifact_base_uri, get_pom_path
 from vang.maven.pom import get_pom_info
 
 
-def read_file(file_path):
+def read_file(file_path):  # pragma: no cover
     with open(file_path, 'rb') as f:
         return f.read()
 
@@ -31,8 +31,8 @@ def get_checksum_headers(md5, sha1, sha256):
 
 def get_pom_publish_name(pom_path, artifact_id, version):
     pom_name = pom_path.split('/')[-1]
-    return pom_name if pom_name.split('.')[-1] == 'pom' else '{}-{}.pom'.format(
-        artifact_id, version)
+    return pom_name if pom_name.split(
+        '.')[-1] == 'pom' else f'{artifact_id}-{version}.pom'
 
 
 def get_publish_data(artifact_base_uri, path, name):
@@ -41,24 +41,25 @@ def get_publish_data(artifact_base_uri, path, name):
     return {
         'content': content,
         'checksum_headers': get_checksum_headers(md5, sha1, sha256),
-        'uri': '{}/{}'.format(artifact_base_uri, name)
+        'uri': f'{artifact_base_uri}/{name}'
     }
 
 
 def publish_maven_artifact(repository, pom_dirs):
     for pom_dir in pom_dirs:
         pom_info = get_pom_info(get_pom_path(pom_dir))
-        base_uri = get_artifact_base_uri(
-            repository, pom_info['group_id'],
-            pom_info['artifact_id'], pom_info['version'])
+        base_uri = get_artifact_base_uri(repository, pom_info['group_id'],
+                                         pom_info['artifact_id'],
+                                         pom_info['version'])
 
         publish_data = [get_publish_data(base_uri, pom_info['pom_path'],
                                          get_pom_publish_name(pom_info['pom_path'],
                                                               pom_info['artifact_id'],
                                                               pom_info['version']))] + \
-                       [get_publish_data(base_uri, path, path.split('/')[-1]) for path in
-                        glob('{}/**/*.jar'.format(pom_dir), recursive=True) +
-                        glob('{}/**/*.war'.format(pom_dir), recursive=True)]
+                       [get_publish_data(base_uri, path, path.split('/')[-1])
+                        for path in
+                        glob(f'{pom_dir}/**/*.jar', recursive=True) +
+                        glob(f'{pom_dir}/**/*.war', recursive=True)]
 
         yield [
             api.call(pd['uri'], pd['checksum_headers'], pd['content'], 'PUT')
@@ -84,5 +85,5 @@ def parse_args(args):
     return parser.parse_args(args)
 
 
-if __name__ == '__main__':
+if __name__ == '__main__':  # pragma: no cover
     main(**parse_args(argv[1:]).__dict__)

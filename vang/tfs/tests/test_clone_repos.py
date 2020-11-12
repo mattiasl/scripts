@@ -2,6 +2,7 @@
 
 from unittest.mock import MagicMock, call, patch
 
+import pytest
 from pytest import raises
 
 from vang.tfs.clone_repos import clone, main
@@ -11,40 +12,45 @@ from vang.tfs.clone_repos import get_commands
 from vang.tfs.clone_repos import parse_args
 
 
-@patch('vang.tfs.clone_repos.run_commands', return_value=range(3))
-@patch('vang.tfs.clone_repos.makedeirs')
-def test_clone_repos(mock_makedirs, mock_run_commands):
+@patch(
+    'vang.tfs.clone_repos.run_commands', autospec=True, return_value=range(3))
+@patch('vang.tfs.clone_repos.makedirs', autospec=True)
+def test_clone(mock_makedirs, mock_run_commands):
     assert [0, 1, 2] == list(clone(['c1', 'c2'], 'root_dir'))
     assert [call('root_dir', exist_ok=True)] == mock_makedirs.mock_calls
     assert [
         call([('c1', 'root_dir'), ('c2', 'root_dir')],
              check=False,
              max_processes=5,
-             timeout=60)
+             timeout=180)
     ] == mock_run_commands.mock_calls
 
 
-def test_get_commands():
-    assert [
-        'git clone url1 -b branch clone_dir1',
-        'git clone url2 -b branch clone_dir2',
-    ] == get_commands(
+@pytest.mark.parametrize("clone_specs, branch, flat, expected", [
+    (
         [['url1', 'clone_dir1'], ['url2', 'clone_dir2']],
         'branch',
         False,
-    )
-
-    assert [
-        'git clone url1',
-        'git clone url2',
-    ] == get_commands(
+        [
+            'git clone url1 -b branch clone_dir1',
+            'git clone url2 -b branch clone_dir2',
+        ],
+    ),
+    (
         [['url1', 'clone_dir1'], ['url2', 'clone_dir2']],
         None,
         True,
-    )
+        [
+            'git clone url1',
+            'git clone url2',
+        ],
+    ),
+])
+def test_get_commands(clone_specs, branch, flat, expected):
+    assert expected == get_commands(clone_specs, branch, flat)
 
 
-@patch('vang.tfs.clone_repos.get_repos')
+@patch('vang.tfs.clone_repos.get_repos', autospec=True)
 def test_get_clone_specs(mock_get_repos):
     mock_get_repos.return_value = [[
         'project', {
@@ -57,9 +63,9 @@ def test_get_clone_specs(mock_get_repos):
 
 
 @patch('vang.tfs.clone_repos.print')
-@patch('vang.tfs.clone_repos.clone')
-@patch('vang.tfs.clone_repos.get_clone_specs')
-@patch('vang.tfs.clone_repos.get_projects')
+@patch('vang.tfs.clone_repos.clone', autospec=True)
+@patch('vang.tfs.clone_repos.get_clone_specs', autospec=True)
+@patch('vang.tfs.clone_repos.get_projects', autospec=True)
 def test_clone_repos(
         mock_get_projects,
         mock_get_clone_specs,
@@ -134,70 +140,77 @@ def test_clone_repos(
     ] == mock_clone.mock_calls
 
 
-def test_parse_args():
-    for args in ['', '-o o -p p', '-o o -r r', '-p p -r r']:
-        with raises(SystemExit):
-            parse_args(args.split(' ') if args else args)
+@pytest.mark.parametrize("args", [
+    '',
+    '-o o -p p',
+    '-o o -r r',
+    '-p p -r r',
+])
+def test_parse_args_raises(args):
+    with raises(SystemExit):
+        parse_args(args.split(' ') if args else args)
 
-    for args, pargs in [
-        [
-            '-o organisation/project/repo',
-            {
-                'branch': None,
-                'clone_dir': '.',
-                'flat': False,
-                'organisations': ['organisation/project/repo'],
-                'projects': None,
-                'repos': None
-            }
-        ],
-        [
-            '-p project/repo',
-            {
-                'branch': None,
-                'clone_dir': '.',
-                'flat': False,
-                'organisations': None,
-                'projects': ['project/repo'],
-                'repos': None
-            }
-        ],
-        [
-            '-r repo',
-            {
-                'branch': None,
-                'clone_dir': '.',
-                'flat': False,
-                'organisations': None,
-                'projects': None,
-                'repos': ['repo']
-            }
-        ],
-        [
-            '-r repo -b b -d d -f',
-            {
-                'branch': 'b',
-                'clone_dir': 'd',
-                'flat': True,
-                'organisations': None,
-                'projects': None,
-                'repos': ['repo']
-            }
-        ],
-    ]:
-        assert pargs == parse_args(args.split(' ')).__dict__
+
+@pytest.mark.parametrize("args, expected", [
+    [
+        '-o organisation/project/repo',
+        {
+            'branch': None,
+            'clone_dir': '.',
+            'flat': False,
+            'organisations': ['organisation/project/repo'],
+            'projects': None,
+            'repos': None
+        }
+    ],
+    [
+        '-p project/repo',
+        {
+            'branch': None,
+            'clone_dir': '.',
+            'flat': False,
+            'organisations': None,
+            'projects': ['project/repo'],
+            'repos': None
+        }
+    ],
+    [
+        '-r repo',
+        {
+            'branch': None,
+            'clone_dir': '.',
+            'flat': False,
+            'organisations': None,
+            'projects': None,
+            'repos': ['repo']
+        }
+    ],
+    [
+        '-r repo -b b -d d -f',
+        {
+            'branch': 'b',
+            'clone_dir': 'd',
+            'flat': True,
+            'organisations': None,
+            'projects': None,
+            'repos': ['repo']
+        }
+    ],
+])
+def test_parse_args_valid(args, expected):
+    assert expected == parse_args(args.split(' ')).__dict__
 
 
 @patch('vang.tfs.clone_repos.print')
-@patch('vang.tfs.clone_repos.clone_repos')
+@patch('vang.tfs.clone_repos.clone_repos', autospec=True)
 def test_main(mock_clone_repos, mock_print):
     mock_clone_repos.return_value = [[0, 'r1'], [1, 'r2']]
     main(
         'clone_dir',
-        'organisations',
-        'projects',
-        'repos',
+        ['organisations'],
+        ['projects'],
+        ['repos'],
         'branch',
-        'flat',
+        True,
     )
     assert [call('r1'), call('r2')] == mock_print.mock_calls

@@ -7,9 +7,11 @@ from vang.tfs.api import call
 from vang.tfs.get_repos import get_repos
 
 
-def get_repo_branches(organisation, project, repository, ref_filter='refs/heads'):
+def get_repo_branches(organisation, project, repository,
+                      ref_filter='refs/heads'):
     f = f'/{ref_filter}' if ref_filter else ''
-    uri = f'/{organisation}/{project}/_apis/git/repositories/{repository}{f}?includeStatuses=true&api-version=3.2'
+    uri = f'/{organisation}/{project}/_apis/git/repositories' \
+          f'/{repository}{f}?includeStatuses=true&api-version=3.2'
     return call(uri)['value']
 
 
@@ -24,7 +26,8 @@ def get_branches(organisations=None,
     if not repos:
         return []
 
-    branch_specs = [(repo, get_repo_branches(*repo.split('/'))) for repo in repos]
+    branch_specs = [(repo, get_repo_branches(*repo.split('/')))
+                    for repo in repos]
     if names:
         return [(repo, [branch['name'].split('/')[-1]
                         for branch in branches])
@@ -72,5 +75,5 @@ def main(organisations,
             print(f'{the_repo}: {the_branch}')
 
 
-if __name__ == '__main__':
+if __name__ == '__main__':  # pragma: no cover
     main(**parse_args(argv[1:]).__dict__)

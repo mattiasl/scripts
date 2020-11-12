@@ -14,6 +14,7 @@ def delete_repo(repo):
     return call(
         f'/{organisation}/{project}/_apis/git/repositories/{repo_id}?api-version=3.2',
         method='DELETE',
+        only_response_code=True
     )
 
 
@@ -30,5 +31,5 @@ def parse_args(args):
     return parser.parse_args(args)
 
 
-if __name__ == '__main__':
+if __name__ == '__main__':  # pragma: no cover
     main(**parse_args(argv[1:]).__dict__)

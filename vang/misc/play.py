@@ -110,7 +110,7 @@ def play_all(tracks):
 
 
 def get_audio_files(path):
-    return glob('{}/**/*.wav'.format(path), recursive=True)
+    return glob(f'{path}/**/*.wav', recursive=True)
 
 
 def parse_args(args):
@@ -124,5 +124,5 @@ def main(wav_dir):
     play_all(get_audio_files(wav_dir))
 
 
-if __name__ == '__main__':
+if __name__ == '__main__':  # pragma: no cover
     main(**parse_args(sys.argv[1:]).__dict__)

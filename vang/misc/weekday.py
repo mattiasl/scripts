@@ -4,7 +4,15 @@ from sys import argv
 
 
 def name(d):
-    return ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'][d - 1]
+    return [
+        'monday',
+        'tuesday',
+        'wednesday',
+        'thursday',
+        'friday',
+        'saturday',
+        'sunday',
+    ][d - 1]
 
 
 def zeller(year, month, day):
@@ -26,8 +34,7 @@ def zeller(year, month, day):
 
 
 def parse_args(args):
-    parser = ArgumentParser(
-        description='Prints weekday')
+    parser = ArgumentParser(description='Prints weekday')
     parser.add_argument('year', help='Year')
     parser.add_argument('month', help='Month')
     parser.add_argument('day', help='Day')
@@ -38,5 +45,5 @@ def main(year, month, day):
     print(name(zeller(int(year), int(month), int(day))))
 
 
-if __name__ == '__main__':
+if __name__ == '__main__':  # pragma: no cover
     main(**parse_args(argv[1:]).__dict__)
