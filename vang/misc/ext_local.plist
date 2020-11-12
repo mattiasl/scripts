@@ -9,7 +9,7 @@
         <key>EnvironmentVariables</key>
         <dict>
             <key>PATH</key>
-            <string>/bin:/usr/bin:/usr/local/bin:/usr/sbin/:/Users/mattias/miniconda3/bin</string>
+            <string>/bin:/usr/bin:/usr/local/bin:/usr/sbin/:/miniconda3/bin</string>
             <key>PYTHONPATH</key>
             <string>/Users/mattias/dev/mattiasl/scripts</string>
         </dict>

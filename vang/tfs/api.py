@@ -1,10 +1,8 @@
 #!/usr/bin/env python3
 
-from base64 import b64encode
-from json import loads
 from os import environ
-from urllib.error import HTTPError
-from urllib.request import Request, urlopen
+
+from requests import delete, get, post, put
 
 
 def call(
@@ -21,8 +19,8 @@ def call(
     * TFS_TOKEN, the tfs token
 
     Args:
-        uri (str): e.g. "/rest/api/1.0/projects/{project}/repos/{repo}/branches?filterText={branch}"
-        request_data (str): the JSON request
+        uri (str): e.g. "{organisation}/{project}/_apis/build/definitions/{definition_id}?api-version=3.2"
+        request_data (dict): the JSON request
         method: http method
         only_response_code: default False
         rest_url: default environ.get('TFS_REST_URL', None)
@@ -31,28 +29,41 @@ def call(
     Return:
           the JSON response
     """
-    auth = f':{token}'
-    basic_auth_header = f'Basic {b64encode(auth.encode("utf-8")).decode()}'
-    url = f'{rest_url}{uri}'
+    return call_url(f'{rest_url}{uri}', request_data, method, only_response_code, token)
 
-    request = Request(
+
+def call_url(
         url,
-        request_data.encode("UTF-8") if request_data else None,
-        {
-            'Authorization': basic_auth_header,
-            'Content-Type': "application/json"
-        },
-        method=method,
-    )
+        request_data=None,
+        method='GET',
+        only_response_code=False,
+        token=environ.get('TFS_TOKEN', None),
+        verify_certificate=False,
+):
+    """Makes a REST call to TFS rest api.
+    May use three environment variables:
+    * TFS_TOKEN, the tfs token
 
-    try:
-        response = urlopen(request)
-        response_code = response.getcode()
-        if only_response_code:
-            return response_code
-        response_data = response.read()
-        return loads(response_data.decode(
-            'UTF-8')) if response_data else response.getcode()
-    except HTTPError as e:
-        print(f'Can not call {url}, {request_data}, {method}, {e}')
-        raise e
+    Args:
+        url (str): e.g. "http://myorg:8080/tfs/{organisation}/{project}/_apis/build/definitions/{definition_id}?api-version=3.2"
+        request_data (dict): the JSON request
+        method: http method
+        only_response_code: default False
+        token: default environ.get('TFS_TOKEN', None),
+        verify_certificate: True if https certificate should be verified,
+
+    Return:
+          the JSON response
+    """
+    m = {'DELETE': delete,
+         'GET': get,
+         'POST': post,
+         'PUT': put,
+         }[method]
+
+    params = {'url': url, 'auth': ('', token), 'verify': verify_certificate}
+    if request_data:
+        params['json'] = request_data
+
+    response = m(**params)
+    return response.status_code if only_response_code else response.json() if response.text else response.status_code()
